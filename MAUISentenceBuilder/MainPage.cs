@@ -1,24 +1,21 @@
 using Microsoft.Maui.Controls;
+using System.Collections.Generic;
 
 namespace MAUISentenceBuilder
 {
     public class MainPage : ContentPage
     {
-        private Label sentenceLabel;
-        private string formedSentence = "";
+        private StackLayout availableWordsLayout;
+        private StackLayout selectedWordsLayout;
+        private List<string> availableWords;
+        private List<string> selectedWords;
 
         public MainPage()
         {
-            sentenceLabel = new Label
-            {
-                Text = "Formed Sentence: ",
-                FontSize = 24,
-                HorizontalOptions = LayoutOptions.Center,
-                VerticalOptions = LayoutOptions.End
-            };
+            availableWords = new List<string> { "Hello", "world", "this", "is", "MAUI" };
+            selectedWords = new List<string>();
 
-            var words = new[] { "Hello", "world", "this", "is", "MAUI" };
-            var wordButtons = new StackLayout
+            availableWordsLayout = new StackLayout
             {
                 Orientation = StackOrientation.Horizontal,
                 HorizontalOptions = LayoutOptions.Center,
@@ -26,29 +23,67 @@ namespace MAUISentenceBuilder
                 Spacing = 10
             };
 
-            foreach (var word in words)
+            selectedWordsLayout = new StackLayout
+            {
+                Orientation = StackOrientation.Horizontal,
+                HorizontalOptions = LayoutOptions.Center,
+                VerticalOptions = LayoutOptions.End,
+                Spacing = 10
+            };
+
+            UpdateWordButtons();
+
+            Content = new StackLayout
+            {
+                Children = { availableWordsLayout, selectedWordsLayout }
+            };
+        }
+
+        private void UpdateWordButtons()
+        {
+            availableWordsLayout.Children.Clear();
+            selectedWordsLayout.Children.Clear();
+
+            foreach (var word in availableWords)
             {
                 var button = new Button
                 {
                     Text = word,
                     FontSize = 18
                 };
-                button.Clicked += OnWordButtonClicked;
-                wordButtons.Children.Add(button);
+                button.Clicked += OnAvailableWordClicked;
+                availableWordsLayout.Children.Add(button);
             }
 
-            Content = new StackLayout
+            foreach (var word in selectedWords)
             {
-                Children = { wordButtons, sentenceLabel }
-            };
+                var button = new Button
+                {
+                    Text = word,
+                    FontSize = 18
+                };
+                button.Clicked += OnSelectedWordClicked;
+                selectedWordsLayout.Children.Add(button);
+            }
         }
 
-        private void OnWordButtonClicked(object sender, EventArgs e)
+        private void OnAvailableWordClicked(object sender, EventArgs e)
         {
             if (sender is Button button)
             {
-                formedSentence += button.Text + " ";
-                sentenceLabel.Text = "Formed Sentence: " + formedSentence;
+                availableWords.Remove(button.Text);
+                selectedWords.Add(button.Text);
+                UpdateWordButtons();
+            }
+        }
+
+        private void OnSelectedWordClicked(object sender, EventArgs e)
+        {
+            if (sender is Button button)
+            {
+                selectedWords.Remove(button.Text);
+                availableWords.Add(button.Text);
+                UpdateWordButtons();
             }
         }
     }
