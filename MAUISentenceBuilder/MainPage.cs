@@ -8,7 +8,11 @@ namespace MAUISentenceBuilder
         {
             var sentenceBuilder = new SentenceBuilder
             {
-                AvailableWords = new List<string> { "Hello", "world", "this", "is", "MAUI" }
+                AvailableWords = new List<string> { "Hello", "world", "this", "is", "MAUI" },
+                ButtonColor = Colors.Green,
+                PlaceholderColor = Colors.LightGray,
+                FontFamily = "Helvetica",
+                TextSize = 20
             };
             sentenceBuilder.SentenceValidated += OnSentenceValidated;
 

@@ -10,10 +10,46 @@ namespace MAUISentenceBuilder
         public static readonly BindableProperty AvailableWordsProperty =
             BindableProperty.Create(nameof(AvailableWords), typeof(List<string>), typeof(SentenceBuilder), new List<string>(), propertyChanged: OnAvailableWordsChanged);
 
+        public static readonly BindableProperty ButtonColorProperty =
+            BindableProperty.Create(nameof(ButtonColor), typeof(Color), typeof(SentenceBuilder), Colors.Blue);
+
+        public static readonly BindableProperty PlaceholderColorProperty =
+            BindableProperty.Create(nameof(PlaceholderColor), typeof(Color), typeof(SentenceBuilder), Colors.Gray);
+
+        public static readonly BindableProperty FontFamilyProperty =
+            BindableProperty.Create(nameof(FontFamily), typeof(string), typeof(SentenceBuilder), "Arial");
+
+        public static readonly BindableProperty TextSizeProperty =
+            BindableProperty.Create(nameof(TextSize), typeof(double), typeof(SentenceBuilder), 18.0);
+
         public List<string> AvailableWords
         {
             get => (List<string>)GetValue(AvailableWordsProperty);
             set => SetValue(AvailableWordsProperty, value);
+        }
+
+        public Color ButtonColor
+        {
+            get => (Color)GetValue(ButtonColorProperty);
+            set => SetValue(ButtonColorProperty, value);
+        }
+
+        public Color PlaceholderColor
+        {
+            get => (Color)GetValue(PlaceholderColorProperty);
+            set => SetValue(PlaceholderColorProperty, value);
+        }
+
+        public string FontFamily
+        {
+            get => (string)GetValue(FontFamilyProperty);
+            set => SetValue(FontFamilyProperty, value);
+        }
+
+        public double TextSize
+        {
+            get => (double)GetValue(TextSizeProperty);
+            set => SetValue(TextSizeProperty, value);
         }
 
         public event EventHandler<bool> SentenceValidated;
@@ -48,7 +84,9 @@ namespace MAUISentenceBuilder
             validateButton = new Button
             {
                 Text = "Validate Sentence",
-                FontSize = 18,
+                FontSize = TextSize,
+                FontFamily = FontFamily,
+                BackgroundColor = ButtonColor,
                 HorizontalOptions = LayoutOptions.Center,
                 VerticalOptions = LayoutOptions.End,
                 IsVisible = false
@@ -79,7 +117,9 @@ namespace MAUISentenceBuilder
                 var button = new Button
                 {
                     Text = word,
-                    FontSize = 18
+                    FontSize = TextSize,
+                    FontFamily = FontFamily,
+                    BackgroundColor = ButtonColor
                 };
                 button.Clicked += OnAvailableWordClicked;
                 availableWordsLayout.Children.Add(button);
@@ -88,14 +128,17 @@ namespace MAUISentenceBuilder
                 {
                     var placeholder = new BoxView
                     {
-                        Color = Colors.Gray,
+                        Color = PlaceholderColor,
                         WidthRequest = 80,
                         HeightRequest = 40,
                         HorizontalOptions = LayoutOptions.Center,
-                        VerticalOptions = LayoutOptions.Center
+                        VerticalOptions = LayoutOptions.Center,
+                        IsVisible = false
                     };
                     placeholders[word] = placeholder;
                 }
+
+                availableWordsLayout.Children.Add(placeholders[word]);
             }
 
             foreach (var word in selectedWords)
@@ -103,18 +146,12 @@ namespace MAUISentenceBuilder
                 var button = new Button
                 {
                     Text = word,
-                    FontSize = 18
+                    FontSize = TextSize,
+                    FontFamily = FontFamily,
+                    BackgroundColor = ButtonColor
                 };
                 button.Clicked += OnSelectedWordClicked;
                 selectedWordsLayout.Children.Add(button);
-            }
-
-            foreach (var word in placeholders.Keys)
-            {
-                if (!AvailableWords.Contains(word))
-                {
-                    availableWordsLayout.Children.Add(placeholders[word]);
-                }
             }
 
             validateButton.IsVisible = selectedWords.Any();
@@ -124,6 +161,7 @@ namespace MAUISentenceBuilder
         {
             if (sender is Button button)
             {
+                placeholders[button.Text].IsVisible = true;
                 AvailableWords.Remove(button.Text);
                 selectedWords.Add(button.Text);
                 await AnimateButton(button, availableWordsLayout, selectedWordsLayout);
@@ -135,6 +173,7 @@ namespace MAUISentenceBuilder
         {
             if (sender is Button button)
             {
+                placeholders[button.Text].IsVisible = false;
                 selectedWords.Remove(button.Text);
                 AvailableWords.Add(button.Text);
                 await AnimateButton(button, selectedWordsLayout, availableWordsLayout);
