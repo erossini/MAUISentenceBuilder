@@ -1,5 +1,6 @@
 using Microsoft.Maui.Controls;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace MAUISentenceBuilder
 {
@@ -67,24 +68,39 @@ namespace MAUISentenceBuilder
             }
         }
 
-        private void OnAvailableWordClicked(object sender, EventArgs e)
+        private async void OnAvailableWordClicked(object sender, EventArgs e)
         {
             if (sender is Button button)
             {
+                await AnimateButton(button, availableWordsLayout, selectedWordsLayout);
                 availableWords.Remove(button.Text);
                 selectedWords.Add(button.Text);
                 UpdateWordButtons();
             }
         }
 
-        private void OnSelectedWordClicked(object sender, EventArgs e)
+        private async void OnSelectedWordClicked(object sender, EventArgs e)
         {
             if (sender is Button button)
             {
+                await AnimateButton(button, selectedWordsLayout, availableWordsLayout);
                 selectedWords.Remove(button.Text);
                 availableWords.Add(button.Text);
                 UpdateWordButtons();
             }
+        }
+
+        private async Task AnimateButton(Button button, StackLayout fromLayout, StackLayout toLayout)
+        {
+            var initialPosition = button.Bounds;
+            fromLayout.Children.Remove(button);
+            toLayout.Children.Add(button);
+
+            var finalPosition = button.Bounds;
+            button.TranslationX = initialPosition.X - finalPosition.X;
+            button.TranslationY = initialPosition.Y - finalPosition.Y;
+
+            await button.TranslateTo(0, 0, 500, Easing.CubicInOut);
         }
     }
 }
