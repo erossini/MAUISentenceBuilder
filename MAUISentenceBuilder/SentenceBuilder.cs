@@ -228,34 +228,34 @@ namespace MAUISentenceBuilder
             return button;
         }
 
-        private void OnDragStarting(object sender, DragStartingEventArgs e, string word)
-        {
-            e.Data.Properties.Add("Word", word);
-            e.Data.Properties.Add("Source", sender);
-        }
+    private void OnDragStarting(object sender, DragStartingEventArgs e, string word)
+    {
+        e.Data.Properties.Add("Word", word);
+        e.Data.Properties.Add("Source", sender);
+    }
 
-        private void OnDrop(object sender, DropEventArgs e, string word)
+    private void OnDrop(object sender, DropEventArgs e, string word)
+    {
+        if (e.Data.Properties.ContainsKey("Word"))
         {
-            if (e.Data.Properties.ContainsKey("Word"))
+            var draggedWord = e.Data.Properties["Word"].ToString();
+            var sourceButton = e.Data.Properties["Source"] as Button;
+
+            if (selectedWords.Contains(draggedWord))
             {
-                var draggedWord = e.Data.Properties["Word"].ToString();
-                var sourceButton = e.Data.Properties["Source"] as Button;
-
-                if (selectedWords.Contains(draggedWord))
-                {
-                    selectedWords.Remove(draggedWord);
-                    var dropIndex = selectedWords.IndexOf(word);
-                    selectedWords.Insert(dropIndex, draggedWord);
-                }
-                else
-                {
-                    AvailableWords.Remove(draggedWord);
-                    selectedWords.Add(draggedWord);
-                }
-
-                UpdateWordButtons();
+                selectedWords.Remove(draggedWord);
+                var dropIndex = selectedWords.IndexOf(word);
+                selectedWords.Insert(dropIndex, draggedWord);
             }
+            else
+            {
+                AvailableWords.Remove(draggedWord);
+                selectedWords.Add(draggedWord);
+            }
+
+            UpdateWordButtons();
         }
+    }
 
         private async void OnAvailableWordClicked(object sender, EventArgs e)
         {
