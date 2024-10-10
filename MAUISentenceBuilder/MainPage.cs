@@ -1,5 +1,6 @@
 using Microsoft.Maui.Controls;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace MAUISentenceBuilder
@@ -10,11 +11,14 @@ namespace MAUISentenceBuilder
         private StackLayout selectedWordsLayout;
         private List<string> availableWords;
         private List<string> selectedWords;
+        private Dictionary<string, BoxView> placeholders;
+        private Button validateButton;
 
         public MainPage()
         {
             availableWords = new List<string> { "Hello", "world", "this", "is", "MAUI" };
             selectedWords = new List<string>();
+            placeholders = new Dictionary<string, BoxView>();
 
             availableWordsLayout = new StackLayout
             {
@@ -32,11 +36,21 @@ namespace MAUISentenceBuilder
                 Spacing = 10
             };
 
+            validateButton = new Button
+            {
+                Text = "Validate Sentence",
+                FontSize = 18,
+                HorizontalOptions = LayoutOptions.Center,
+                VerticalOptions = LayoutOptions.End,
+                IsVisible = false
+            };
+            validateButton.Clicked += OnValidateButtonClicked;
+
             UpdateWordButtons();
 
             Content = new StackLayout
             {
-                Children = { availableWordsLayout, selectedWordsLayout }
+                Children = { availableWordsLayout, selectedWordsLayout, validateButton }
             };
         }
 
@@ -54,6 +68,19 @@ namespace MAUISentenceBuilder
                 };
                 button.Clicked += OnAvailableWordClicked;
                 availableWordsLayout.Children.Add(button);
+
+                if (!placeholders.ContainsKey(word))
+                {
+                    var placeholder = new BoxView
+                    {
+                        Color = Colors.Gray,
+                        WidthRequest = 80,
+                        HeightRequest = 40,
+                        HorizontalOptions = LayoutOptions.Center,
+                        VerticalOptions = LayoutOptions.Center
+                    };
+                    placeholders[word] = placeholder;
+                }
             }
 
             foreach (var word in selectedWords)
@@ -66,15 +93,25 @@ namespace MAUISentenceBuilder
                 button.Clicked += OnSelectedWordClicked;
                 selectedWordsLayout.Children.Add(button);
             }
+
+            foreach (var word in placeholders.Keys)
+            {
+                if (!availableWords.Contains(word))
+                {
+                    availableWordsLayout.Children.Add(placeholders[word]);
+                }
+            }
+
+            validateButton.IsVisible = selectedWords.Any();
         }
 
         private async void OnAvailableWordClicked(object sender, EventArgs e)
         {
             if (sender is Button button)
             {
-                await AnimateButton(button, availableWordsLayout, selectedWordsLayout);
                 availableWords.Remove(button.Text);
                 selectedWords.Add(button.Text);
+                await AnimateButton(button, availableWordsLayout, selectedWordsLayout);
                 UpdateWordButtons();
             }
         }
@@ -83,14 +120,14 @@ namespace MAUISentenceBuilder
         {
             if (sender is Button button)
             {
-                await AnimateButton(button, selectedWordsLayout, availableWordsLayout);
                 selectedWords.Remove(button.Text);
                 availableWords.Add(button.Text);
+                await AnimateButton(button, selectedWordsLayout, availableWordsLayout);
                 UpdateWordButtons();
             }
         }
 
-        private async Task AnimateButton(Button button, StackLayout fromLayout, StackLayout toLayout)
+        private async Task AnimateButton(Button button, Layout fromLayout, Layout toLayout)
         {
             var initialPosition = button.Bounds;
             fromLayout.Children.Remove(button);
@@ -101,6 +138,18 @@ namespace MAUISentenceBuilder
             button.TranslationY = initialPosition.Y - finalPosition.Y;
 
             await button.TranslateTo(0, 0, 500, Easing.CubicInOut);
+        }
+
+        private void OnValidateButtonClicked(object sender, EventArgs e)
+        {
+            if (selectedWords.SequenceEqual(availableWords))
+            {
+                DisplayAlert("Correct!", "You have formed the correct sentence.", "OK");
+            }
+            else
+            {
+                DisplayAlert("Incorrect", "The sentence is not correct. Try again.", "OK");
+            }
         }
     }
 }
