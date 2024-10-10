@@ -14,7 +14,8 @@ namespace MAUISentenceBuilder
                 ButtonColor = Colors.Green,
                 PlaceholderColor = Colors.LightGray,
                 FontFamily = "Helvetica",
-                TextSize = 20
+                TextSize = 20,
+                AnimationDuration = 1000 // Custom animation duration in milliseconds
             };
             sentenceBuilder.SentenceValidated += OnSentenceValidated;
             sentenceBuilder.CanValidateSentenceChanged += OnCanValidateSentenceChanged;

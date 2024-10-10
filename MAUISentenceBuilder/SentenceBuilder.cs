@@ -22,6 +22,9 @@ namespace MAUISentenceBuilder
         public static readonly BindableProperty TextSizeProperty =
             BindableProperty.Create(nameof(TextSize), typeof(double), typeof(SentenceBuilder), 18.0);
 
+        public static readonly BindableProperty AnimationDurationProperty =
+            BindableProperty.Create(nameof(AnimationDuration), typeof(uint), typeof(SentenceBuilder), 500u);
+
         public List<string> AvailableWords
         {
             get => (List<string>)GetValue(AvailableWordsProperty);
@@ -51,6 +54,14 @@ namespace MAUISentenceBuilder
             get => (double)GetValue(TextSizeProperty);
             set => SetValue(TextSizeProperty, value);
         }
+
+        public uint AnimationDuration
+        {
+            get => (uint)GetValue(AnimationDurationProperty);
+            set => SetValue(AnimationDurationProperty, value);
+        }
+
+        public List<string> SelectedWords => selectedWords;
 
         public event EventHandler<bool> SentenceValidated;
         public event EventHandler CanValidateSentenceChanged;
@@ -101,8 +112,6 @@ namespace MAUISentenceBuilder
 
             UpdateWordButtons();
         }
-        
-        public List<string> SelectedWords => selectedWords;
 
         private static void OnAvailableWordsChanged(BindableObject bindable, object oldValue, object newValue)
         {
@@ -195,7 +204,7 @@ namespace MAUISentenceBuilder
             button.TranslationX = initialPosition.X - finalPosition.X;
             button.TranslationY = initialPosition.Y - finalPosition.Y;
 
-            await button.TranslateTo(0, 0, 500, Easing.CubicInOut);
+            await button.TranslateTo(0, 0, AnimationDuration, Easing.CubicInOut);
         }
 
         public void OnValidateButtonClicked(object sender, EventArgs e)
