@@ -14,7 +14,7 @@ namespace MAUISentenceBuilder
                 Text = "Formed Sentence: ",
                 FontSize = 24,
                 HorizontalOptions = LayoutOptions.Center,
-                VerticalOptions = LayoutOptions.Start
+                VerticalOptions = LayoutOptions.End
             };
 
             var words = new[] { "Hello", "world", "this", "is", "MAUI" };
@@ -22,7 +22,7 @@ namespace MAUISentenceBuilder
             {
                 Orientation = StackOrientation.Horizontal,
                 HorizontalOptions = LayoutOptions.Center,
-                VerticalOptions = LayoutOptions.End,
+                VerticalOptions = LayoutOptions.Start,
                 Spacing = 10
             };
 
@@ -39,7 +39,7 @@ namespace MAUISentenceBuilder
 
             Content = new StackLayout
             {
-                Children = { sentenceLabel, wordButtons }
+                Children = { wordButtons, sentenceLabel }
             };
         }
 
