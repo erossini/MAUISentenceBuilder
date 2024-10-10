@@ -170,16 +170,7 @@ namespace MAUISentenceBuilder
 
             foreach (var word in AvailableWords)
             {
-                var button = new Button
-                {
-                    Text = word,
-                    FontSize = TextSize,
-                    FontFamily = FontFamily,
-                    BackgroundColor = ButtonColor
-                };
-                button.Clicked += OnAvailableWordClicked;
-                button.SetValue(SemanticProperties.DescriptionProperty, word);
-                button.SetValue(SemanticProperties.HintProperty, $"Button for {word}");
+                var button = CreateDraggableButton(word);
                 availableWordsLayout.Children.Add(button);
 
                 if (!placeholders.ContainsKey(word))
@@ -201,21 +192,69 @@ namespace MAUISentenceBuilder
 
             foreach (var word in selectedWords)
             {
-                var button = new Button
-                {
-                    Text = word,
-                    FontSize = TextSize,
-                    FontFamily = FontFamily,
-                    BackgroundColor = ButtonColor
-                };
-                button.Clicked += OnSelectedWordClicked;
-                button.SetValue(SemanticProperties.DescriptionProperty, word);
-                button.SetValue(SemanticProperties.HintProperty, $"Selected button for {word}");
+                var button = CreateDraggableButton(word);
                 selectedWordsLayout.Children.Add(button);
             }
 
             validateButton.IsVisible = selectedWords.Any();
             CanValidateSentenceChanged?.Invoke(this, EventArgs.Empty);
+        }
+
+        private Button CreateDraggableButton(string word, bool isSelected = false)
+        {
+            var button = new Button
+            {
+                Text = word,
+                FontSize = TextSize,
+                FontFamily = FontFamily,
+                BackgroundColor = ButtonColor
+            };
+
+            var dragGesture = new DragGestureRecognizer();
+            dragGesture.DragStarting += (s, e) => OnDragStarting(s, e, word);
+            button.GestureRecognizers.Add(dragGesture);
+
+            var dropGesture = new DropGestureRecognizer();
+            dropGesture.Drop += (s, e) => OnDrop(s, e, word);
+            button.GestureRecognizers.Add(dropGesture);
+
+            var tapGesture = new TapGestureRecognizer();
+            if (isSelected)
+                tapGesture.Tapped += (s, e) => OnSelectedWordClicked(s, e);
+            else
+                tapGesture.Tapped += (s, e) => OnAvailableWordClicked(s, e);
+            button.GestureRecognizers.Add(tapGesture);
+
+            return button;
+        }
+
+        private void OnDragStarting(object sender, DragStartingEventArgs e, string word)
+        {
+            e.Data.Properties.Add("Word", word);
+            e.Data.Properties.Add("Source", sender);
+        }
+
+        private void OnDrop(object sender, DropEventArgs e, string word)
+        {
+            if (e.Data.Properties.ContainsKey("Word"))
+            {
+                var draggedWord = e.Data.Properties["Word"].ToString();
+                var sourceButton = e.Data.Properties["Source"] as Button;
+
+                if (selectedWords.Contains(draggedWord))
+                {
+                    selectedWords.Remove(draggedWord);
+                    var dropIndex = selectedWords.IndexOf(word);
+                    selectedWords.Insert(dropIndex, draggedWord);
+                }
+                else
+                {
+                    AvailableWords.Remove(draggedWord);
+                    selectedWords.Add(draggedWord);
+                }
+
+                UpdateWordButtons();
+            }
         }
 
         private async void OnAvailableWordClicked(object sender, EventArgs e)
