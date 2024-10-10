@@ -53,6 +53,7 @@ namespace MAUISentenceBuilder
         }
 
         public event EventHandler<bool> SentenceValidated;
+        public event EventHandler CanValidateSentenceChanged;
 
         private StackLayout availableWordsLayout;
         private StackLayout selectedWordsLayout;
@@ -100,6 +101,8 @@ namespace MAUISentenceBuilder
 
             UpdateWordButtons();
         }
+        
+        public List<string> SelectedWords => selectedWords;
 
         private static void OnAvailableWordsChanged(BindableObject bindable, object oldValue, object newValue)
         {
@@ -155,6 +158,7 @@ namespace MAUISentenceBuilder
             }
 
             validateButton.IsVisible = selectedWords.Any();
+            CanValidateSentenceChanged?.Invoke(this, EventArgs.Empty);
         }
 
         private async void OnAvailableWordClicked(object sender, EventArgs e)
@@ -194,7 +198,7 @@ namespace MAUISentenceBuilder
             await button.TranslateTo(0, 0, 500, Easing.CubicInOut);
         }
 
-        private void OnValidateButtonClicked(object sender, EventArgs e)
+        public void OnValidateButtonClicked(object sender, EventArgs e)
         {
             bool isCorrect = selectedWords.SequenceEqual(AvailableWords);
             SentenceValidated?.Invoke(this, isCorrect);
