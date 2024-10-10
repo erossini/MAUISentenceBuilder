@@ -110,8 +110,52 @@ namespace MAUISentenceBuilder
                 Children = { availableWordsLayout, selectedWordsLayout, validateButton }
             };
 
+            AddGestureRecognizers();
             UpdateWordButtons();
         }
+
+        #region Gestures
+
+        private void AddGestureRecognizers()
+        {
+            var swipeLeftGesture = new SwipeGestureRecognizer { Direction = SwipeDirection.Left };
+            swipeLeftGesture.Swiped += OnSwiped;
+
+            var swipeRightGesture = new SwipeGestureRecognizer { Direction = SwipeDirection.Right };
+            swipeRightGesture.Swiped += OnSwiped;
+
+            var swipeUpGesture = new SwipeGestureRecognizer { Direction = SwipeDirection.Up };
+            swipeUpGesture.Swiped += OnSwiped;
+
+            var swipeDownGesture = new SwipeGestureRecognizer { Direction = SwipeDirection.Down };
+            swipeDownGesture.Swiped += OnSwiped;
+
+            this.GestureRecognizers.Add(swipeLeftGesture);
+            this.GestureRecognizers.Add(swipeRightGesture);
+            this.GestureRecognizers.Add(swipeUpGesture);
+            this.GestureRecognizers.Add(swipeDownGesture);
+        }
+
+        private void OnSwiped(object sender, SwipedEventArgs e)
+        {
+            switch (e.Direction)
+            {
+                case SwipeDirection.Left:
+                    // Handle left swipe
+                    break;
+                case SwipeDirection.Right:
+                    // Handle right swipe
+                    break;
+                case SwipeDirection.Up:
+                    // Handle up swipe
+                    break;
+                case SwipeDirection.Down:
+                    // Handle down swipe
+                    break;
+            }
+        }
+
+        #endregion
 
         private static void OnAvailableWordsChanged(BindableObject bindable, object oldValue, object newValue)
         {
