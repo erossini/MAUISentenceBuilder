@@ -134,6 +134,8 @@ namespace MAUISentenceBuilder
                     BackgroundColor = ButtonColor
                 };
                 button.Clicked += OnAvailableWordClicked;
+                button.SetValue(SemanticProperties.DescriptionProperty, word);
+                button.SetValue(SemanticProperties.HintProperty, $"Button for {word}");
                 availableWordsLayout.Children.Add(button);
 
                 if (!placeholders.ContainsKey(word))
@@ -163,6 +165,8 @@ namespace MAUISentenceBuilder
                     BackgroundColor = ButtonColor
                 };
                 button.Clicked += OnSelectedWordClicked;
+                button.SetValue(SemanticProperties.DescriptionProperty, word);
+                button.SetValue(SemanticProperties.HintProperty, $"Selected button for {word}");
                 selectedWordsLayout.Children.Add(button);
             }
 
